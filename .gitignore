@@ -1,0 +1,49 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor configs
+.vscode/
+.idea/
+*.iml
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+
+# Logs & temp
+logs/
+*.log
+*.tmp
+*.cache
+coverage/
+
+# Frontend (React / Node)
+node_modules/
+dist/
+build/
+out/
+.next/
+.turbo/
+
+# Backend (Python / FastAPI)
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# Databases
+*.sqlite3
+*.db
+
+# AI/ML model weights and large binaries
+*.pt
+*.pth
+*.onnx
+*.model
+
+thermal_dataset
