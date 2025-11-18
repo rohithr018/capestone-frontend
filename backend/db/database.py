@@ -59,7 +59,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-    print("✔ Database initialized with logs table!")
+    print("Database initialized with tables!")
 
 
 def reset_db():

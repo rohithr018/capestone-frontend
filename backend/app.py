@@ -17,28 +17,20 @@ import torch.nn as nn
 import torchvision.models as models
 import numpy as np
 import cv2
-from predict_script import preprocess_image, transform_test, classes
 from models.logs import add_log, get_logs
 
+from preprocessing import preprocess_image, transform_test
+from model_loader import load_model, predict_tensor
+from config import ALLOWED_EXT, CLASSES, IMAGE_SIZE
 
 load_dotenv()
+
 # Initialize DB
 init_db()
 
-# MODEL_PATH = "thermal_cnn_transfer_learning.pth"
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# model = models.resnet18(pretrained=False)
-# model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-# model.fc = nn.Linear(model.fc.in_features, len(classes))
-
-# if not os.path.exists(MODEL_PATH):
-#     raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
-
-# model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-# model.to(device)
-# model.eval()  # Freeze for inference
-# print(f"Model Loaded on {device}")
+model = load_model()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Model Loaded on {device}")
 
 
 app = FastAPI(title="Access Control API")
@@ -265,35 +257,33 @@ def admin_check(request: Request):
 
 @app.post("/predict")
 async def predict_thermal_image(file: UploadFile = File(...)):
-    # Validate image format
-    if not file.filename.lower().endswith((".jpg", ".jpeg", ".png", ".bmp")):
+    filename = file.filename.lower()
+
+    if not filename.endswith(ALLOWED_EXT):
         raise HTTPException(status_code=400, detail="Invalid image format")
 
-    # Read file
-    file_bytes = await file.read()
-    img_array = np.frombuffer(file_bytes, np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_GRAYSCALE)
+    # Read & decode image
+    bytes_data = await file.read()
+    arr = np.frombuffer(bytes_data, np.uint8)
+    img = cv2.imdecode(arr, cv2.IMREAD_GRAYSCALE)
 
     if img is None:
         raise HTTPException(status_code=422, detail="Could not decode image")
 
-    # Preprocess
+    # Preprocessing
     processed = preprocess_image(img)
     tensor = transform_test(processed).unsqueeze(0).to(device)
 
-    # Inference
-    with torch.no_grad():
-        outputs = model(tensor)
-        _, pred = torch.max(outputs, 1)
-        predicted_label = classes[pred.item()]
+    # Predict
+    label, confidence = predict_tensor(model, tensor)
 
     return {
         "file": file.filename,
-        "prediction": predicted_label,
-        "confidence": torch.softmax(outputs, dim=1)[0][pred.item()].item()
+        "prediction": label,
+        "confidence": confidence
     }
 
-# logs
+# ------------------- logs-------------------
 @app.get("/logs")
 def api_get_logs():
     """Return all logs sorted in descending timestamp order."""

@@ -27,22 +27,6 @@ export default function Home() {
 				Check Access
 			</button>
 
-			{/* Result Banner */}
-			{prediction && (
-				<div
-					className={`px-6 py-3 rounded-lg mb-6 shadow font-medium text-sm mt-2
-				${
-					prediction.status === "success"
-						? "bg-green-100 text-green-700"
-						: "bg-red-100 text-red-700"
-				}`}
-				>
-					{prediction.status === "success"
-						? `Access Granted — Detected Class: ${prediction.class}`
-						: `Access Denied — Detected Class: ${prediction.class}`}
-				</div>
-			)}
-
 			{/* Title */}
 			<h1 className="text-3xl sm:text-4xl font-extrabold text-gray-800 text-center mb-3">
 				Access Management Dashboard
