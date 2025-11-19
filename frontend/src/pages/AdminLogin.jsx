@@ -25,6 +25,10 @@ export default function AdminLogin() {
 				window.location.href = "/";
 			}, 150);
 		} catch (err) {
+			showToast(
+				err.response?.data?.detail || "Invalid username or password",
+				"error"
+			);
 			setError(err.response?.data?.detail || "Invalid username or password");
 			setLoading(false);
 		}
@@ -61,7 +65,6 @@ export default function AdminLogin() {
 							/>
 						</div>
 					</div>
-
 					{/* Password */}
 					<div className="mb-4">
 						<label className="text-sm font-medium text-gray-700">
@@ -85,14 +88,6 @@ export default function AdminLogin() {
 							</div>
 						</div>
 					</div>
-
-					{/* Error */}
-					{error && (
-						<p className="text-red-600 text-xs mb-3 text-center font-medium">
-							{error}
-						</p>
-					)}
-
 					{/* Login Button */}
 					<button
 						type="submit"

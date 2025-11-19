@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useToast } from "../components/toast/ToastContext";
 import { FiDownload, FiFileText } from "react-icons/fi";
 import jsPDF from "jspdf";
-import { getLogs } from "../services/logs.services";
+import { getLogs } from "../services/logs.service";
 
 export default function AccessLogs() {
 	const { showToast } = useToast();
@@ -12,7 +12,7 @@ export default function AccessLogs() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
-	const logsPerPage = 15;
+	const logsPerPage = 12;
 	const [searchParams, setSearchParams] = useSearchParams();
 	const initialPage = parseInt(searchParams.get("page")) || 1;
 	const [currentPage, setCurrentPage] = useState(initialPage);
@@ -26,7 +26,7 @@ export default function AccessLogs() {
 	const [showExportMenu, setShowExportMenu] = useState(false);
 	const exportRef = useRef(null);
 
-	// ------------------------ FETCH LOGS FROM API ------------------------
+	// Fetch logs from api
 	useEffect(() => {
 		setLoading(true);
 
@@ -48,7 +48,7 @@ export default function AccessLogs() {
 		}
 	}, [loading]);
 
-	// ------------------------ EXPORT CSV ------------------------
+	// Export CSV
 	const exportCSV = () => {
 		if (logs.length === 0) {
 			showToast("No logs to export!", "error");
@@ -77,7 +77,7 @@ export default function AccessLogs() {
 		showToast("CSV exported!", "success");
 	};
 
-	// ------------------------ EXPORT PDF ------------------------
+	//Export PDF
 	const exportPDF = () => {
 		if (logs.length === 0) {
 			showToast("No logs to export!", "error");
@@ -121,13 +121,13 @@ export default function AccessLogs() {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	// ------------------------ PAGINATION ------------------------
+	// Pagination
 	const handlePageChange = (page) => {
 		setSearchParams({ page });
 		setCurrentPage(page);
 	};
 
-	// ------------------------ FORMAT TIMESTAMP ------------------------
+	// Format Timestamps
 	const formatDate = (timestamp) => {
 		const d = new Date(timestamp);
 		if (isNaN(d)) return timestamp;
@@ -142,15 +142,13 @@ export default function AccessLogs() {
 			hour12: true,
 		});
 	};
-
-	// ------------------------ RENDER ------------------------
 	return (
 		<div className="flex flex-col items-center min-h-screen bg-gray-50 pt-20 px-4">
 			<h1 className="text-3xl font-bold text-gray-800 mb-6">Access Logs</h1>
 
-			<div className="w-full max-w-6xl bg-white border rounded-lg shadow-sm h-[75vh] overflow-y-auto p-2">
+			<div className="w-full max-w-6xl bg-white border border-gray-200 rounded-xl shadow-sm h-[72vh] overflow-y-auto p-0">
 				{/* Header row */}
-				<div className="grid grid-cols-[1.5fr_1.5fr_2fr_1fr] p-2 border-b font-semibold text-sm bg-gray-100">
+				<div className="grid grid-cols-[1.5fr_1.5fr_2fr_1fr] px-4 py-3 border-b bg-gray-100 text-gray-700 font-semibold text-sm sticky top-0 z-10">
 					<span>Date / Time</span>
 					<span>User</span>
 					<span>Door / Location</span>
@@ -158,32 +156,40 @@ export default function AccessLogs() {
 				</div>
 
 				{/* Logs */}
-				<ul>
+				<ul className="divide-y">
 					{loading ? (
 						<li className="text-center py-6 text-gray-500">Loading logs...</li>
 					) : error ? (
 						<li className="text-center py-6 text-red-500">{error}</li>
 					) : currentLogs.length === 0 ? (
-						<li className="text-center py-4 text-gray-400">No logs found</li>
+						<li className="text-center py-6 text-gray-400">No logs found</li>
 					) : (
 						currentLogs.map((log, idx) => (
 							<li
 								key={idx}
-								className={`grid grid-cols-[1.5fr_1.5fr_2fr_1fr] p-2 text-xs border rounded-md mt-1
-                  ${
-										log.status === "SUCCESS"
-											? "bg-green-50 border-green-200 text-green-700"
-											: "bg-red-50 border-red-200 text-red-700"
-									}`}
+								className="grid grid-cols-[1.5fr_1.5fr_2fr_1fr] px-4 py-3 text-xs items-center"
 							>
 								<span>{formatDate(log.timestamp)}</span>
-								<span>
+
+								<span className="text-gray-700 font-medium">
 									{log.user_id} / {log.user_name}
 								</span>
-								<span>
+
+								<span className="text-gray-700">
 									{log.door_id} / {log.door_location}
 								</span>
-								<span className="font-semibold text-center">{log.status}</span>
+
+								<span
+									className={`text-center font-bold px-2 py-1 rounded-md
+									${
+										log.status === "SUCCESS"
+											? "bg-green-100 text-green-700 border border-green-300"
+											: "bg-red-100 text-red-700 border border-red-300"
+									}
+								`}
+								>
+									{log.status}
+								</span>
 							</li>
 						))
 					)}
@@ -191,17 +197,18 @@ export default function AccessLogs() {
 			</div>
 
 			{/* Pagination */}
-			<div className="flex gap-1 mt-4 flex-wrap justify-center">
+			<div className="flex gap-2 mt-4 flex-wrap justify-center">
 				{Array.from({ length: totalPages }, (_, i) => (
 					<button
 						key={i}
 						onClick={() => handlePageChange(i + 1)}
-						className={`px-3 py-1 text-xs border rounded-md
-              ${
-								currentPage === i + 1
-									? "bg-indigo-600 text-white border-indigo-600"
-									: "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
-							}`}
+						className={`px-3 py-1 text-sm rounded-md border transition
+						${
+							currentPage === i + 1
+								? "bg-indigo-600 text-white border-indigo-600 shadow"
+								: "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+						}
+					`}
 					>
 						{i + 1}
 					</button>
@@ -226,13 +233,13 @@ export default function AccessLogs() {
 					</button>
 
 					{showExportMenu && (
-						<div className="absolute bottom-full left-1/2 -translate-x-1/2 w-40 bg-white border rounded-lg shadow-lg mb-2 z-20">
+						<div className="absolute top-full left-1/2 -translate-x-1/2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg mt-2 z-20">
 							<button
 								onClick={() => {
 									exportCSV();
 									setShowExportMenu(false);
 								}}
-								className="w-full px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+								className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
 							>
 								<FiFileText /> CSV
 							</button>
@@ -242,7 +249,7 @@ export default function AccessLogs() {
 									exportPDF();
 									setShowExportMenu(false);
 								}}
-								className="w-full px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+								className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
 							>
 								<FiFileText /> PDF
 							</button>

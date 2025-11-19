@@ -3,7 +3,7 @@ import OverviewTab from "../components/analytics/OverviewTab";
 import UsersTab from "../components/analytics/UsersTab";
 import DoorsTab from "../components/analytics/DoorsTab";
 import { buildAnalytics } from "../utils/analyticsParser";
-import { getLogs } from "../services/logs.services";
+import { getLogs } from "../services/logs.service";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { FiDownload } from "react-icons/fi";
@@ -13,33 +13,7 @@ export default function Analytics() {
 	const [analytics, setAnalytics] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	// ------------------ Export PDF ------------------
-	const exportPDF = async () => {
-		const pdf = new jsPDF("p", "mm", "a4");
-		const elements = document.querySelectorAll(".export-chart");
-
-		let yOffset = 10;
-
-		for (let el of elements) {
-			const canvas = await html2canvas(el, { scale: 2 });
-			const imgData = canvas.toDataURL("image/png");
-
-			const width = pdf.internal.pageSize.getWidth() - 20;
-			const height = (canvas.height * width) / canvas.width;
-
-			if (yOffset + height > pdf.internal.pageSize.getHeight()) {
-				pdf.addPage();
-				yOffset = 10;
-			}
-
-			pdf.addImage(imgData, "PNG", 10, yOffset, width, height);
-			yOffset += height + 10;
-		}
-
-		pdf.save("analytics_report.pdf");
-	};
-
-	// ------------------ Load Logs & Build Analytics ------------------
+	// Load Logs & Build Analytics
 	useEffect(() => {
 		const load = async () => {
 			try {
@@ -82,13 +56,6 @@ export default function Analytics() {
 					<h1 className="text-3xl font-bold text-gray-800">
 						Analytics & Insights
 					</h1>
-
-					{/* <button
-						onClick={exportPDF}
-						className="flex items-center gap-2 bg-indigo-600 text-white px-3 py-2 rounded-md shadow hover:bg-indigo-700 transition"
-					>
-						<FiDownload /> Export PDF
-					</button> */}
 				</div>
 
 				{/* Tabs */}

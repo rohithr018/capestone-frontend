@@ -139,7 +139,7 @@ export default function OverviewTab({ data }) {
 				</ResponsiveContainer>
 			</div>
 
-			{/* 🚨 Security Insight Panel */}
+			{/*Security Insight Panel */}
 			<div className="bg-red-50 border border-red-200 rounded-xl shadow p-4">
 				<div className="flex items-center gap-2 mb-2">
 					<FiAlertTriangle className="text-red-500 text-lg" />

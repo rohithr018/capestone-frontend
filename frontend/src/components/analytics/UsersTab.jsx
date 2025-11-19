@@ -24,11 +24,11 @@ export default function UsersTab({ data }) {
 		.sort((a, b) => b.success - a.success)
 		.slice(0, 5);
 
-	// 🔹 Thresholds
+	// Thresholds
 	const HIGH_FAIL_THRESHOLD = 3;
 	const FAIL_RATE_THRESHOLD = 0.3;
 
-	// 🔍 Suspicious Users List
+	// Suspicious Users List
 	const suspiciousUsers = users
 		.filter(
 			(u) =>
@@ -36,13 +36,13 @@ export default function UsersTab({ data }) {
 		)
 		.sort((a, b) => b.failRate - a.failRate);
 
-	// 📌 Helper to format X-Axis labels (truncation)
+	//  Helper to format X-Axis labels (truncation)
 	const truncate = (str, max = 12) =>
 		str.length > max ? str.slice(0, max) + "…" : str;
 
 	return (
 		<div className="space-y-6">
-			{/* 📌 Security Thresholds Panel */}
+			{/* Security Thresholds Panel */}
 			<div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl shadow-md p-4 flex gap-3 items-start">
 				<div className="text-xs text-gray-800 space-y-1 leading-relaxed">
 					<p>
@@ -60,8 +60,8 @@ export default function UsersTab({ data }) {
 				</div>
 			</div>
 
-			{/* 🟥 Top Failed Users */}
-			{/* 🚨 Most Denied Attempts (High Risk) */}
+			{/*Top Failed Users */}
+			{/* Most Denied Attempts (High Risk) */}
 			<div className="bg-white border border-red-200/60 rounded-xl shadow-md p-5">
 				{/* Header */}
 				<div className="flex items-center gap-3 mb-4">
@@ -116,7 +116,7 @@ export default function UsersTab({ data }) {
 				)}
 			</div>
 
-			{/* 🟦 Most Active Users */}
+			{/* Most Active Users */}
 			<div className="bg-white rounded-xl shadow p-5">
 				<div className="flex items-center gap-2 mb-3">
 					<span className="bg-indigo-100 text-indigo-700 p-1.5 rounded-md">
@@ -149,7 +149,7 @@ export default function UsersTab({ data }) {
 				)}
 			</div>
 
-			{/* 🟩 Top Successful Users */}
+			{/* Top Successful Users */}
 			<div className="bg-white rounded-xl shadow p-5">
 				<div className="flex items-center gap-2 mb-3">
 					<span className="bg-green-100 text-green-700 p-1.5 rounded-md">
@@ -182,7 +182,7 @@ export default function UsersTab({ data }) {
 				)}
 			</div>
 
-			{/* 🚨 Suspicious Users */}
+			{/* Suspicious Users */}
 			<div className="bg-white border border-red-200 rounded-xl shadow-md p-5">
 				{/* Header */}
 				<div className="flex items-center gap-2 mb-4">

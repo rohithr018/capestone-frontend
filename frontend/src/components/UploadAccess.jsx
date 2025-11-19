@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { FiXCircle, FiKey } from "react-icons/fi";
 import { getAccessForUser } from "../services/access.service";
 import { getDoorById } from "../services/doors.service";
-import { writeLog } from "../services/logs.services";
+import { writeLog } from "../services/logs.service";
 import { useToast } from "../components/toast/ToastContext";
 import { getUserById } from "../services/users.service";
 import { predictThermalImage } from "../services/prediction.service";
@@ -62,8 +62,8 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 	const simulatePrediction = async () => {
 		if (loading) return;
 
-		if (!selectedImage) return showToast("Please select an image", "warning");
-		if (!selectedDoor) return showToast("Please select a door", "warning");
+		if (!selectedImage) return showToast("Please select an image", "error");
+		if (!selectedDoor) return showToast("Please select a door", "error");
 
 		setLoading(true);
 		setApiResult(null);
@@ -72,7 +72,7 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 			const actual = extractClassFromPath(selectedImage);
 			if (!actual) return showToast("Invalid filename format.", "error");
 
-			// 1. Predict
+			// Predict
 			let predictionResp;
 			try {
 				predictionResp = await predictThermalImage(selectedImage);
@@ -89,11 +89,11 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 			const predicted = top.label;
 			const confidence = top.confidence ?? 0;
 
-			// 2. If predicted != actual => mismatch: do NOT check access or write log
+			// If predicted != actual => mismatch: do NOT check access or write log
 			if (predicted !== actual) {
 				showToast(
 					`Mismatch: Predicted ${predicted}, expected ${actual}`,
-					"warning"
+					"error"
 				);
 
 				// notify parent about mismatch (no log write)
@@ -115,7 +115,7 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 				return;
 			}
 
-			// 3. Matched identity — now perform access check and then write the log
+			// Matched identity — now perform access check and then write the log
 			showToast(`Matched: ${predicted}`, "success");
 
 			// 4. Get access list for the predicted identity
@@ -146,7 +146,7 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 				return doorId === normalizedSelectedDoor && granted;
 			});
 
-			// 5. Load door info for user-friendly label
+			// Load door info for user-friendly label
 			let doorInfo = {};
 			try {
 				doorInfo = await getDoorById(selectedDoor);
@@ -160,7 +160,7 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 				selectedDoor ||
 				"Selected Door";
 
-			// 6. Get user info (prefer accessResp.user if provided)
+			// Get user info
 			let userInfo = accessResp?.user ?? null;
 			if (!userInfo) {
 				try {
@@ -171,7 +171,7 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 				}
 			}
 
-			// 7. Determine status and persist log (only after prediction success)
+			// Determine status and persist log (only after prediction success)
 			const status = hasAccess ? "SUCCESS" : "DENIED";
 			const timestamp = new Date().toISOString();
 
@@ -197,12 +197,12 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 				setTimeout(() => {
 					showToast(
 						`Failed to persist access log — ${status} at ${doorLabel}`,
-						"warning"
+						"error"
 					);
 				}, 800);
 			}
 
-			// 8. Append local UI log and notify parent AFTER persistence attempt
+			// Append local UI log and notify parent AFTER persistence attempt
 			try {
 				appendLog(
 					`${timestamp} | User:${predicted} | Door:${selectedDoor} | Access:${status}`
@@ -239,7 +239,6 @@ export default function UploadAccess({ onClose, onResult, appendLog }) {
 			}, 800);
 		} finally {
 			setLoading(false);
-			// delay reset so toasts are visible
 			setTimeout(() => {
 				if (fileInputRef.current) fileInputRef.current.value = "";
 				setSelectedImage(null);

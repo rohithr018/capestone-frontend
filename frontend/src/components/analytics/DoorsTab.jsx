@@ -14,7 +14,7 @@ export default function DoorsTab({ data }) {
 	const topFailDoors = data?.topFailDoors || [];
 	const topTrafficDoors = data?.topTrafficDoors || [];
 
-	// Thresholds — Capital & Visible
+	// Thresholds
 	const HIGH_FAIL_THRESHOLD = 3;
 	const HIGH_TRAFFIC_THRESHOLD = 5;
 	const FAIL_RATE_THRESHOLD = 0.2;
